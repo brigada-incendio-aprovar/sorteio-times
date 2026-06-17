@@ -28,8 +28,8 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const starsTxt = n => "⭐".repeat(n);
 const starsHTML = n => "★".repeat(n) + `<span class="off">${"★".repeat(5 - n)}</span>`;
-const TEAM_NAMES = ["A", "B", "C", "D"];
-const TEAM_EMOJI = ["🔵", "🔴", "🟢", "🟡"];
+const TEAM_NAMES = ["A", "B", "C", "D", "E", "F"];
+const TEAM_EMOJI = ["🔵", "🔴", "🟢", "🟡", "🟣", "🟠"];
 
 function toast(msg) {
   const t = $("#toast");
@@ -202,14 +202,14 @@ function updateDrawStatus() {
   let ok = true, msg = "";
 
   if (need.men === null) {
-    if (act.length < need.total) { ok = false; msg = `Faltam jogadores: ${act.length}/${need.total} ativos`; }
-    else msg = `${act.length} ativos · usando ${need.total}`;
+    if (act.length < need.total) { ok = false; msg = `${act.length} ativos — este sorteio precisa de ${need.total}`; }
+    else msg = `${act.length} ativos · este sorteio usa ${need.total}`;
   } else {
     const probs = [];
     if (men < need.men) probs.push(`homens ${men}/${need.men}`);
     if (women < need.women) probs.push(`mulheres ${women}/${need.women}`);
     if (probs.length) { ok = false; msg = "Faltam: " + probs.join(" · "); }
-    else msg = `OK · ${need.men}H + ${need.women}M por sorteio`;
+    else msg = `OK · este sorteio usa ${need.men}H + ${need.women}M`;
   }
   st.textContent = msg;
   st.className = "cfg-status " + (ok ? "ok" : "bad");
