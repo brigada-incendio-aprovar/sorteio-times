@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Sorteio de Times</title>
+  <meta name="description" content="Cadastre jogadores e sorteie times equilibrados de vôlei." />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0c8999" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0b1620" media="(prefers-color-scheme: dark)" />
+
+  <!-- iOS install -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Times" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ===== TELA INICIAL ===== -->
+    <section class="screen active" id="screen-home">
+      <header class="home-hero">
+        <div class="hero-ball" aria-hidden="true">🏐</div>
+        <h1>Sorteio de Times</h1>
+        <p class="hero-sub" id="home-stats">Carregando…</p>
+      </header>
+
+      <nav class="home-menu">
+        <button class="menu-card" data-go="screen-players">
+          <span class="menu-ic">👥</span>
+          <span class="menu-txt"><strong>Jogadores</strong><small>Cadastrar e gerenciar</small></span>
+          <span class="menu-chev">›</span>
+        </button>
+        <button class="menu-card primary" data-go="screen-draw">
+          <span class="menu-ic">🎲</span>
+          <span class="menu-txt"><strong>Sortear Times</strong><small>Normal ou Rankeado</small></span>
+          <span class="menu-chev">›</span>
+        </button>
+        <button class="menu-card" data-go="screen-history">
+          <span class="menu-ic">🕑</span>
+          <span class="menu-txt"><strong>Histórico</strong><small>Sorteios salvos</small></span>
+          <span class="menu-chev">›</span>
+        </button>
+      </nav>
+
+      <div class="home-footer">
+        <button class="btn-ghost small" id="btn-theme">🌓 Tema</button>
+        <button class="btn-ghost small" id="btn-backup">💾 Backup</button>
+      </div>
+    </section>
+
+    <!-- ===== JOGADORES ===== -->
+    <section class="screen" id="screen-players">
+      <div class="topbar">
+        <button class="back" data-go="screen-home">‹ Início</button>
+        <h2>Jogadores</h2>
+        <button class="topbar-action" id="btn-add-player">+ Novo</button>
+      </div>
+
+      <div class="player-tools">
+        <input type="search" id="player-search" placeholder="Buscar jogador…" />
+        <div class="seg" role="group" aria-label="Filtrar">
+          <button class="seg-btn active" data-filter="all">Todos</button>
+          <button class="seg-btn" data-filter="active">Ativos</button>
+          <button class="seg-btn" data-filter="off">Fora</button>
+        </div>
+      </div>
+
+      <div class="bulk-row">
+        <button class="btn-ghost small" id="btn-all-on">Ativar todos</button>
+        <button class="btn-ghost small" id="btn-all-off">Desativar todos</button>
+      </div>
+
+      <ul class="player-list" id="player-list"></ul>
+      <p class="empty" id="players-empty" hidden>Nenhum jogador ainda.<br/>Toque em <b>+ Novo</b> para começar.</p>
+    </section>
+
+    <!-- ===== SORTEAR ===== -->
+    <section class="screen" id="screen-draw">
+      <div class="topbar">
+        <button class="back" data-go="screen-home">‹ Início</button>
+        <h2>Sortear Times</h2>
+        <span style="width:56px"></span>
+      </div>
+
+      <div class="cfg">
+        <div class="cfg-block">
+          <label class="cfg-label">Tipo de sorteio</label>
+          <div class="seg big" id="cfg-type">
+            <button class="seg-btn active" data-type="normal">Normal</button>
+            <button class="seg-btn" data-type="ranked">Rankeado</button>
+          </div>
+          <small class="cfg-hint" id="type-hint">Distribuição aleatória, sem usar estrelas.</small>
+        </div>
+
+        <div class="cfg-block">
+          <label class="cfg-label">Jogadores por time</label>
+          <div class="seg big" id="cfg-size">
+            <button class="seg-btn" data-size="4">4</button>
+            <button class="seg-btn active" data-size="5">5</button>
+            <button class="seg-btn" data-size="6">6</button>
+          </div>
+        </div>
+
+        <div class="cfg-block">
+          <label class="cfg-label">Quantidade de times</label>
+          <div class="seg big" id="cfg-teams">
+            <button class="seg-btn active" data-teams="2">2</button>
+            <button class="seg-btn" data-teams="3">3</button>
+            <button class="seg-btn" data-teams="4">4</button>
+          </div>
+        </div>
+
+        <div class="cfg-block">
+          <label class="cfg-label">Composição por sexo</label>
+          <select id="cfg-comp" class="select"></select>
+          <small class="cfg-hint" id="comp-hint"></small>
+        </div>
+
+        <div class="cfg-status" id="cfg-status"></div>
+
+        <button class="btn-primary big" id="btn-do-draw">🎲 Sortear</button>
+      </div>
+    </section>
+
+    <!-- ===== RESULTADO ===== -->
+    <section class="screen" id="screen-result">
+      <div class="topbar">
+        <button class="back" data-go="screen-draw">‹ Voltar</button>
+        <h2>Resultado</h2>
+        <button class="topbar-action" id="btn-redraw">↻ Refazer</button>
+      </div>
+      <div class="result-meta" id="result-meta"></div>
+      <div class="teams" id="teams-out"></div>
+      <div class="result-actions">
+        <button class="btn-primary big" id="btn-share">📲 Compartilhar no WhatsApp</button>
+        <button class="btn-ghost" id="btn-copy">Copiar texto</button>
+      </div>
+    </section>
+
+    <!-- ===== HISTÓRICO ===== -->
+    <section class="screen" id="screen-history">
+      <div class="topbar">
+        <button class="back" data-go="screen-home">‹ Início</button>
+        <h2>Histórico</h2>
+        <button class="topbar-action danger" id="btn-clear-history">Limpar</button>
+      </div>
+      <ul class="history-list" id="history-list"></ul>
+      <p class="empty" id="history-empty" hidden>Nenhum sorteio salvo ainda.</p>
+    </section>
+
+  </div>
+
+  <!-- ===== MODAL JOGADOR ===== -->
+  <div class="modal" id="player-modal" hidden>
+    <div class="modal-card">
+      <h3 id="player-modal-title">Novo jogador</h3>
+      <label class="field-label">Nome</label>
+      <input type="text" id="f-name" placeholder="Ex: Carlos" autocomplete="off" />
+
+      <label class="field-label">Sexo</label>
+      <div class="seg" id="f-sex">
+        <button class="seg-btn active" data-sex="M">Masculino</button>
+        <button class="seg-btn" data-sex="F">Feminino</button>
+      </div>
+
+      <label class="field-label">Nível</label>
+      <div class="stars-pick" id="f-stars">
+        <button data-v="1">★</button><button data-v="2">★</button><button data-v="3">★</button><button data-v="4">★</button><button data-v="5">★</button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-ghost" id="player-cancel">Cancelar</button>
+        <button class="btn-primary" id="player-save">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- toast -->
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
