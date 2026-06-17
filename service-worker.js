@@ -1,5 +1,5 @@
-/* Service Worker — cache offline (cache-first) */
-const CACHE = "sorteio-times-v1";
+/* Service Worker — v2 (network-first: atualiza sozinho online, funciona offline) */
+const CACHE = "sorteio-times-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -24,17 +24,17 @@ self.addEventListener("activate", e => {
   );
 });
 
+/* Rede primeiro: pega sempre a versão mais nova quando online,
+   e usa o cache só quando estiver sem internet. */
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   e.respondWith(
-    caches.match(e.request).then(hit => {
-      if (hit) return hit;
-      return fetch(e.request).then(res => {
-        // cacheia novas requisições do próprio app
+    fetch(e.request)
+      .then(res => {
         const copy = res.clone();
         caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
         return res;
-      }).catch(() => caches.match("./index.html"));
-    })
+      })
+      .catch(() => caches.match(e.request).then(hit => hit || caches.match("./index.html")))
   );
 });
